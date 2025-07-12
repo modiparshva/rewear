@@ -68,11 +68,11 @@ export async function GET(req: NextRequest) {
 
     // Fetch all swap requests where current user is the owner of the requested item
     const swaps = await Swap.find()
-      // .populate("requestedItem")
-      // .populate("offeredItem")
-      // .populate("requester", "name avatar")
-      // .sort({ createdAt: -1 })
-      // .lean()
+      .populate("requestedItem")
+      .populate("offeredItem")
+      .populate("requester", "name avatar")
+      .sort({ createdAt: -1 })
+      .lean()
 
     // console.log("Fetched swap requests:", swaps)
 

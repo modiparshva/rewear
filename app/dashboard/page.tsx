@@ -522,7 +522,7 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-4 mb-4">
                               <Avatar>
                                 <AvatarImage src={request.requester.avatar || "/placeholder.svg"} />
-                                {/* <AvatarFallback>{request.requester.name.charAt(0)}</AvatarFallback> */}
+                                <AvatarFallback>{request.requester.name.charAt(0)}</AvatarFallback>
                               </Avatar>
                               <div>
                                 <p className="font-medium">{request.requester.name} wants to swap for your:</p>
