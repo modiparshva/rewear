@@ -135,11 +135,11 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/user/profile")
       const data = await res.json()
-  
+
       if (!res.ok) {
         throw new Error(data.error || "Failed to fetch user")
       }
-  
+
       setUserProfile(data.user)
     } catch (error) {
       console.error("Error fetching user profile:", error)
@@ -151,141 +151,52 @@ export default function DashboardPage() {
 
   const fetchUserItems = async () => {
     try {
-      // In a real app, this would be an API call to /api/user/items
-      const mockItems: UserItem[] = [
-        {
-          _id: "item1",
-          title: "Vintage Leather Jacket",
-          images: ["/placeholder.svg?height=100&width=100"],
-          status: "approved",
-          points: 40,
-          createdAt: "2024-01-10",
-          views: 120,
-          likes: 15,
-        },
-        {
-          _id: "item2",
-          title: "Summer Floral Dress",
-          images: ["/placeholder.svg?height=100&width=100"],
-          status: "pending",
-          points: 30,
-          createdAt: "2024-02-01",
-          views: 50,
-          likes: 5,
-        },
-        {
-          _id: "item3",
-          title: "Running Sneakers",
-          images: ["/placeholder.svg?height=100&width=100"],
-          status: "swapped",
-          points: 25,
-          createdAt: "2023-12-15",
-          views: 200,
-          likes: 20,
-        },
-      ]
-      setUserItems(mockItems)
+      const res = await fetch("/api/user/items", { credentials: "include" })
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error || "Failed to fetch items")
+
+      setUserItems(data.items)
     } catch (error) {
       console.error("Error fetching user items:", error)
       toast.error("Failed to load your items.")
     }
   }
 
+
   const fetchSwapRequests = async () => {
     try {
-      // In a real app, this would be an API call to /api/swaps/my-requests and /api/swaps/incoming-requests
-      const mockRequests: SwapRequest[] = [
-        {
-          _id: "swapreq1",
-          requestedItem: {
-            _id: "reqitem1",
-            title: "Classic Wool Coat",
-            images: ["/placeholder.svg?height=100&width=100"],
-            points: 50,
-          },
-          offeredItem: {
-            _id: "offitem1",
-            title: "Denim Jeans",
-            images: ["/placeholder.svg?height=100&width=100"],
-            points: 20,
-          },
-          requester: { _id: "otheruser1", name: "John Smith" },
-          owner: { _id: currentUserId, name: "Jane Doe" },
-          swapType: "direct",
-          pointsRequired: 50,
-          pointsOffered: 20,
-          pointsDifference: 30,
-          message: "Love your coat! My jeans are barely worn.",
-          status: "pending",
-          createdAt: "2024-03-01",
-        },
-        {
-          _id: "swapreq2",
-          requestedItem: {
-            _id: "reqitem2",
-            title: "Silk Scarf",
-            images: ["/placeholder.svg?height=100&width=100"],
-            points: 15,
-          },
-          requester: { _id: currentUserId, name: "Jane Doe" },
-          owner: { _id: "otheruser2", name: "Alice Brown" },
-          swapType: "points",
-          pointsRequired: 15,
-          pointsOffered: 0,
-          pointsDifference: 15,
-          message: "I'd love to get this scarf with points!",
-          status: "pending",
-          createdAt: "2024-02-25",
-        },
-      ]
-      setSwapRequests(mockRequests)
+      const res = await fetch("/api/swaps/request", { credentials: "include" })
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error || "Failed to fetch swap requests")
+      console.log("Swap requests data:", data)
+
+      setSwapRequests(data.requests || [])
     } catch (error) {
       console.error("Error fetching swap requests:", error)
       toast.error("Failed to load swap requests.")
     }
   }
 
+
   const fetchPointsHistory = async () => {
     try {
-      // In a real app, this would be an API call to /api/points/history
-      const mockHistory: PointsTransaction[] = [
-        {
-          _id: "pt1",
-          type: "earned",
-          amount: 100,
-          description: "Welcome bonus",
-          createdAt: "2023-01-01",
-        },
-        {
-          _id: "pt2",
-          type: "earned",
-          amount: 40,
-          description: "Item approved: Vintage Leather Jacket",
-          relatedItem: { _id: "item1", title: "Vintage Leather Jacket", images: [""] },
-          createdAt: "2024-01-15",
-        },
-        {
-          _id: "pt3",
-          type: "spent",
-          amount: -25,
-          description: "Swap for Running Sneakers",
-          relatedItem: { _id: "item3", title: "Running Sneakers", images: [""] },
-          createdAt: "2023-12-20",
-        },
-        {
-          _id: "pt4",
-          type: "bonus",
-          amount: 5,
-          description: "Good rating bonus from John Smith",
-          createdAt: "2024-03-05",
-        },
-      ]
-      setPointsHistory(mockHistory)
+      const res = await fetch("/api/points/history", { credentials: "include" })
+      const text = await res.text() // capture full raw response
+
+      // console.log("RAW RESPONSE:", text)
+
+      const data = JSON.parse(text) // manually parse
+      if (!res.ok) throw new Error(data.error || "Failed to fetch points history")
+
+      setPointsHistory(data.history || [])
     } catch (error) {
       console.error("Error fetching points history:", error)
       toast.error("Failed to load points history.")
     }
   }
+
 
   const handleAcceptSwap = async (swapRequestId: string) => {
     try {
@@ -354,26 +265,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Recycle className="h-8 w-8 text-green-600" />
-            <span className="text-2xl font-bold text-gray-900">ReWear</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/browse" className="text-gray-600 hover:text-gray-900">
-              Browse
-            </Link>
-            <Link href="/items/new" className="text-gray-600 hover:text-gray-900">
-              List Item
-            </Link>
-            <Link href="/dashboard" className="text-green-600 font-medium">
-              Dashboard
-            </Link>
-          </nav>
-        </div>
-      </header>
+
 
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -614,8 +506,8 @@ export default function DashboardPage() {
                 <CardDescription>Review requests for your items.</CardDescription>
               </CardHeader>
               <CardContent>
-                {swapRequests.filter((req) => req.owner._id === userProfile.id && req.status === "pending").length ===
-                0 ? (
+                {swapRequests.filter((req) => req?.owner.toString() == userProfile.id && req.status === "pending").length ===
+                  0 ? (
                   <div className="text-center py-8">
                     <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">No incoming swap requests at the moment.</p>
@@ -623,7 +515,7 @@ export default function DashboardPage() {
                 ) : (
                   <div className="space-y-4">
                     {swapRequests
-                      .filter((req) => req.owner._id === userProfile.id && req.status === "pending")
+                      .filter((req) => req?.owner.toString() == userProfile.id && req.status === "pending")
                       .map((request) => (
                         <Card key={request._id}>
                           <CardContent className="p-4">
@@ -720,7 +612,7 @@ export default function DashboardPage() {
                 <CardDescription>Track the status of your outgoing swap requests.</CardDescription>
               </CardHeader>
               <CardContent>
-                {swapRequests.filter((req) => req.requester._id === userProfile.id).length === 0 ? (
+                {swapRequests.filter((req) => req?.requester.toString() == userProfile.id).length === 0 ? (
                   <div className="text-center py-8">
                     <RefreshCw className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600 mb-4">You haven't sent any swap requests yet.</p>
@@ -741,7 +633,7 @@ export default function DashboardPage() {
                     </TableHeader>
                     <TableBody>
                       {swapRequests
-                        .filter((req) => req.requester._id === userProfile.id)
+                        .filter((req) => req?.requester.toString() == userProfile.id)
                         .map((request) => (
                           <TableRow key={request._id}>
                             <TableCell className="font-medium">
