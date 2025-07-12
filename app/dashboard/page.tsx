@@ -304,8 +304,8 @@ export default function DashboardPage() {
                 <Calendar className="h-3 w-3" />
                 <span>Joined {userProfile.joinDate}</span>
               </div>
-              <Button variant="outline" className="mt-4 w-full bg-transparent">
-                Edit Profile
+              <Button asChild variant="outline" className="mt-4 w-full bg-transparent">
+                <Link href="/edit-profile">Edit Profile</Link>
               </Button>
             </CardContent>
           </Card>

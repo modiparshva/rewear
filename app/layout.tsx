@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Header from './components/Header'
+import { Toaster } from "sonner"
 
 const keywords = [
   "rewear",
@@ -66,6 +67,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Header />
+        <Toaster />
         {children}
       </body>
     </html>
