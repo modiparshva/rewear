@@ -13,6 +13,7 @@ const stats = [
   { icon: Globe, label: "Countries", value: "15+", color: "text-purple-600" },
 ]
 
+// Team Name
 const team = [
   {
     name: "Parshva Modi",
