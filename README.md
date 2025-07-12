@@ -7,4 +7,4 @@ Develop ReWear, a web-based platform that enables users to exchange unused cloth
 |:-----|:--------:|------:|
 | Parshva Modi | parshvamodi2005@gmail.com | [modiparshva](https://github.com/modiparshva) |
 | Rohit Solanki | solanki.rohit6105@gmail.com  | [Rohit-Solanki-6105](https://github.com/Rohit-Solanki-6105) |
-| Dishant Dyavarchetti | ddishantmsccs2023@gmail.com | []() |
+| Dishant Dyavarchetti | ddishantmsccs2023@gmail.com | [Dishant-dyavarchetti](https://github.com/Dishant-dyavarchetti) |
