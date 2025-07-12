@@ -16,22 +16,19 @@ const stats = [
 
 const team = [
   {
-    name: "Sarah Johnson",
-    role: "Founder & CEO",
-    bio: "Passionate about sustainable fashion and circular economy. Former fashion industry executive.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Parshva Modi",
+    role: "Full Stack Developer",
+    image: "https://avatars.githubusercontent.com/u/148650895?s=96&v=4",
   },
   {
-    name: "Mike Chen",
-    role: "CTO",
-    bio: "Tech enthusiast building platforms for positive change. Expert in scalable web applications.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Rohit Solanki",
+    role: "Full Stack Developer",
+    image: "https://avatars.githubusercontent.com/u/131529487?v=4",
   },
   {
-    name: "Emma Rodriguez",
-    role: "Head of Community",
-    bio: "Community builder focused on creating inclusive spaces for sustainable fashion lovers.",
-    image: "/placeholder.svg?height=200&width=200",
+    name: "Dishant Dyvarchetti",
+    role: "Full Stack Developer",
+    image: "/dishu.png",
   },
 ]
 
@@ -61,29 +58,6 @@ const values = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Recycle className="h-8 w-8 text-green-600" />
-            <span className="text-2xl font-bold text-gray-900">ReWear</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/browse" className="text-gray-600 hover:text-gray-900">
-              Browse
-            </Link>
-            <Link href="/how-it-works" className="text-gray-600 hover:text-gray-900">
-              How It Works
-            </Link>
-            <Link href="/about" className="text-green-600 font-medium">
-              About
-            </Link>
-            <Link href="/login" className="text-gray-600 hover:text-gray-900">
-              Login
-            </Link>
-          </nav>
-        </div>
-      </header>
 
       <div className="container mx-auto px-4 py-12">
         {/* Hero Section */}
@@ -191,7 +165,6 @@ export default function AboutPage() {
                   <Badge variant="secondary" className="mb-3">
                     {member.role}
                   </Badge>
-                  <p className="text-sm text-gray-600">{member.bio}</p>
                 </CardContent>
               </Card>
             ))}

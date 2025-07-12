@@ -47,35 +47,7 @@ const featuredItems = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Recycle className="h-8 w-8 text-green-600" />
-            <span className="text-2xl font-bold text-gray-900">ReWear</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/browse" className="text-gray-600 hover:text-gray-900">
-              Browse
-            </Link>
-            <Link href="/how-it-works" className="text-gray-600 hover:text-gray-900">
-              How It Works
-            </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-900">
-              About
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/login">
-              <Button variant="ghost">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Sign Up</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
+      
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center max-w-4xl">

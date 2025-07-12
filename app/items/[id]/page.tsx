@@ -223,26 +223,7 @@ export default function ItemDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Recycle className="h-8 w-8 text-green-600" />
-            <span className="text-2xl font-bold text-gray-900">ReWear</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/browse" className="text-gray-600 hover:text-gray-900">
-              Browse
-            </Link>
-            <Link href="/items/new" className="text-gray-600 hover:text-gray-900">
-              List Item
-            </Link>
-            <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
-              Dashboard
-            </Link>
-          </nav>
-        </div>
-      </header>
+      
 
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
