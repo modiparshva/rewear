@@ -5,15 +5,15 @@ import Item from "@/lib/models/Item"
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await dbConnect()
-
-    const item = await Item.findById(params.id).populate("owner", "name avatar rating totalSwaps location").lean()
+    const {id} = await params;
+    const item = await Item.findById(id).populate("owner", "name avatar rating totalSwaps location").lean()
 
     if (!item) {
       return NextResponse.json({ error: "Item not found" }, { status: 404 })
     }
 
     // Increment view count
-    await Item.findByIdAndUpdate(params.id, { $inc: { views: 1 } })
+    await Item.findByIdAndUpdate(id, { $inc: { views: 1 } })
 
     return NextResponse.json({ item })
   } catch (error: any) {
