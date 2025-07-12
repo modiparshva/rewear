@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Header from './components/Header'
 
 const keywords = [
   "rewear",
@@ -45,12 +46,12 @@ const authors = [
   { 
     name: "Parsva Modi", 
     url: "https://github.com/modiparshva"
-  },
+  },
 ]
 
 export const metadata: Metadata = {
-  title: 'ReWear',
-  description: 'Created with RDP3389 Group',
+  title: 'Rewear',
+  description: 'Created by RDP3389 Group',
   keywords: keywords,
   authors: authors,
   creator: "RDP3389 Group",
@@ -63,7 +64,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Header />
+        {children}
+      </body>
     </html>
   )
 }

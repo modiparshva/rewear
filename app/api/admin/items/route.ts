@@ -11,9 +11,13 @@ export async function GET(request: NextRequest) {
 
     // Check admin authentication
     const userId = request.cookies.get("user_session_id")?.value
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
     const user = await User.findById(userId)
-    if (!user || user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    if (!user || (user.role !== "admin" && user.role !== "moderator")) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)

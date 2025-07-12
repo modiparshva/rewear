@@ -9,7 +9,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     await dbConnect()
 
     // Check admin authentication
-    const userId = cookies().get("user_session_id")?.value
+    const userId = request.cookies.get("user_session_id")?.value
     if (!userId) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
