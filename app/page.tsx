@@ -1,53 +1,54 @@
+"use client"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Recycle, Users, Shirt } from "lucide-react"
+import { Item, UserItem } from "@/lib/interfaces"
+import { useEffect, useState } from "react"
 
-const featuredItems = [
-  {
-    id: 1,
-    title: "Vintage Denim Jacket",
-    image: "/placeholder.svg?height=300&width=300",
-    category: "Outerwear",
-    condition: "Excellent",
-    points: 25,
-    user: "Sarah M.",
-  },
-  {
-    id: 2,
-    title: "Designer Summer Dress",
-    image: "/placeholder.svg?height=300&width=300",
-    category: "Dresses",
-    condition: "Like New",
-    points: 35,
-    user: "Emma K.",
-  },
-  {
-    id: 3,
-    title: "Classic White Sneakers",
-    image: "/placeholder.svg?height=300&width=300",
-    category: "Shoes",
-    condition: "Good",
-    points: 20,
-    user: "Mike R.",
-  },
-  {
-    id: 4,
-    title: "Wool Winter Coat",
-    image: "/placeholder.svg?height=300&width=300",
-    category: "Outerwear",
-    condition: "Very Good",
-    points: 40,
-    user: "Lisa T.",
-  },
-]
+
 
 export default function HomePage() {
+  const [featuredItems, setFeaturedItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState<UserItem[]>([]);
+
+  const fetchItems = async () => {
+    try {
+      setLoading(true)
+
+      const params = new URLSearchParams({
+        page: '1',
+        limit: "8",
+      })
+
+      const response = await fetch(`/api/items?${params}`)
+
+      if (response.ok) {
+        const data = await response.json()
+        setItems(data.items || [])
+        setFeaturedItems(data.items || [])
+      } else {
+        console.error("Failed to fetch items")
+        setItems([])
+      }
+    } catch (error) {
+      console.error("Error fetching items:", error)
+      setItems([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchItems()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      
+
       {/* Hero Section */}
       <section className="py-20 px-4">
         <div className="container mx-auto text-center max-w-4xl">
@@ -59,7 +60,7 @@ export default function HomePage() {
             reducing textile waste.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup">
+            <Link href="/login">
               <Button size="lg" className="bg-green-600 hover:bg-green-700">
                 Start Swapping <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -118,11 +119,11 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredItems.map((item) => (
-              <Card key={item.id} className="group hover:shadow-lg transition-shadow">
+              <Card key={item._id} className="group hover:shadow-lg transition-shadow">
                 <CardContent className="p-0">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <Image
-                      src={item.image || "/placeholder.svg"}
+                      src={item.images[0] || "/placeholder.svg"}
                       alt={item.title}
                       width={300}
                       height={300}
@@ -135,7 +136,7 @@ export default function HomePage() {
                     <p className="text-sm text-gray-600 mb-2">{item.category}</p>
                     <div className="flex items-center justify-between">
                       <Badge variant="outline">{item.condition}</Badge>
-                      <span className="text-xs text-gray-500">by {item.user}</span>
+                      <span className="text-xs text-gray-500">by {item.owner.name}</span>
                     </div>
                   </div>
                 </CardContent>

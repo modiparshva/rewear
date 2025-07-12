@@ -37,81 +37,7 @@ import {
   RefreshCw,
 } from "lucide-react"
 import { toast } from "sonner"
-
-interface UserProfile {
-  id: string
-  name: string
-  email: string
-  avatar?: string
-  points: number
-  rating: number
-  totalRatings: number
-  totalSwaps: number
-  location?: {
-    city: string
-    state: string
-    country: string
-  }
-  joinDate: string
-  role: string
-}
-
-interface UserItem {
-  _id: string
-  title: string
-  images: string[]
-  status: string
-  points: number
-  createdAt: string
-  views: number
-  likes: number
-}
-
-interface SwapRequest {
-  _id: string
-  requestedItem: {
-    _id: string
-    title: string
-    images: string[]
-    points: number
-  }
-  offeredItem?: {
-    _id: string
-    title: string
-    images: string[]
-    points: number
-  }
-  requester: {
-    _id: string
-    name: string
-    avatar?: string
-  }
-  owner: {
-    _id: string
-    name: string
-    avatar?: string
-  }
-  swapType: "direct" | "points"
-  pointsRequired: number
-  pointsOffered: number
-  pointsDifference: number
-  message?: string
-  status: string
-  createdAt: string
-}
-
-interface PointsTransaction {
-  _id: string
-  type: "earned" | "spent" | "bonus" | "refund"
-  amount: number
-  description: string
-  createdAt: string
-  relatedItem?: {
-    _id: string
-    title: string
-    images: string[]
-  }
-}
+import { UserItem, UserProfile, SwapRequest, PointsTransaction } from "@/lib/interfaces"
 
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
@@ -122,7 +48,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState("overview")
 
   // Mock current user ID for demonstration. In a real app, this would come from session/auth context.
-  const currentUserId = "user123" // This should be dynamically fetched from the session
+  const currentUserId = userProfile?.id// This should be dynamically fetched from the session
 
   useEffect(() => {
     fetchUserProfile()
@@ -304,9 +230,11 @@ export default function DashboardPage() {
                 <Calendar className="h-3 w-3" />
                 <span>Joined {userProfile.joinDate}</span>
               </div>
-              <Button variant="outline" className="mt-4 w-full bg-transparent">
-                Edit Profile
-              </Button>
+              <Link href="/edit-profile">
+                <Button asChild variant="outline" className="mt-4 w-full bg-transparent">
+                  Edit Profile
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 

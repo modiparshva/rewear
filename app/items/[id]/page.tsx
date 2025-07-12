@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label"
 import { Heart, MapPin, Star, Eye, Calendar, ArrowLeft, RefreshCw, Coins, Recycle } from "lucide-react"
 import { toast } from "sonner"
 import Image from "next/image"
+import { UserProfile } from "@/lib/interfaces"
 
 interface Item {
   _id: string
@@ -58,7 +59,8 @@ interface UserItem {
   title: string
   points: number
   images: string[]
-  condition: string
+  condition: string,
+  status?: string
 }
 
 export default function ItemDetailPage() {
@@ -66,6 +68,8 @@ export default function ItemDetailPage() {
   const [item, setItem] = useState<Item | null>(null)
   const [userItems, setUserItems] = useState<UserItem[]>([]) // Items owned by the current logged-in user
   const [loading, setLoading] = useState(true)
+
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [swapType, setSwapType] = useState<"direct" | "points">("direct")
   const [selectedUserItem, setSelectedUserItem] = useState("")
@@ -74,20 +78,37 @@ export default function ItemDetailPage() {
   const [currentUserPoints, setCurrentUserPoints] = useState(0) // Mock current user points
 
   // Mock current user ID for demonstration. In a real app, this would come from session/auth context.
-  const currentUserId = "user123" // Replace with actual user ID from session
+  const currentUserId = userProfile?.id // Replace with actual user ID from session
 
   useEffect(() => {
     if (params.id) {
+      fetchUserProfile() // Fetch user profile first
       fetchItem()
       fetchUserItems() // Fetch items for the current user
-      // Mock current user points for demonstration
-      setCurrentUserPoints(125)
+      setCurrentUserPoints(userProfile?.points || 100)
+      
     }
   }, [params.id])
 
   useEffect(() => {
     calculateSwapCost()
   }, [swapType, selectedUserItem, item])
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await fetch("/api/user/profile")
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch user")
+      }
+
+      setUserProfile(data.user)
+    } catch (error) {
+      console.error("Error fetching user profile:", error)
+      toast.error("Failed to load profile.")
+    }
+  }
 
   const fetchItem = async () => {
     try {
@@ -101,31 +122,23 @@ export default function ItemDetailPage() {
     } catch (error) {
       console.error("Error fetching item:", error)
       toast.error("Failed to load item")
-    } finally {
-      setLoading(false)
-    }
+    } 
   }
 
   const fetchUserItems = async () => {
     try {
       // In a real application, you would fetch items owned by the currentUserId
-      // For now, using mock data
-      setUserItems([
-        {
-          _id: "65f7d8e9f0a1b2c3d4e5f6a7", // Example ID
-          title: "Blue Denim Jacket",
-          points: 35,
-          images: ["/placeholder.svg?height=100&width=100"],
-          condition: "excellent",
-        },
-        {
-          _id: "65f7d8e9f0a1b2c3d4e5f6a8", // Example ID
-          title: "White Cotton T-Shirt",
-          points: 20,
-          images: ["/placeholder.svg?height=100&width=100"],
-          condition: "very-good",
-        },
-      ])
+      const response = await fetch("/api/user/items", {
+        method: "GET",
+        credentials: "include", // Include cookies for authentication
+      })
+      if (!response.ok) {
+        throw new Error("Failed to fetch user items")
+      }
+      const data = await response.json()
+      const avaliableItems = data.items.filter((item: UserItem) => item?.status == "approved")
+      setUserItems(avaliableItems || [])
+      
     } catch (error) {
       console.error("Error fetching user items:", error)
     }
@@ -192,6 +205,10 @@ export default function ItemDetailPage() {
 
   const canAffordSwap = swapType === "direct" || currentUserPoints >= pointsDifference
 
+  useEffect(() => {
+    setLoading(false)
+  }, [item, userProfile, userItems])
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -223,93 +240,57 @@ export default function ItemDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      
-
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
         <Button variant="ghost" asChild className="mb-6">
           <Link href="/browse">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Browse
+            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Browse
           </Link>
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Images */}
           <div className="space-y-4">
-            <div className="relative">
-              <Image
-                src={item.images[selectedImage] || "/placeholder.svg?height=500&width=500"}
-                alt={item.title}
-                width={500}
-                height={500}
-                className="w-full h-96 object-cover rounded-lg"
-              />
-              <Button size="sm" variant="ghost" className="absolute top-4 right-4 bg-white/80 hover:bg-white">
-                <Heart className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {item.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {item.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`relative rounded-lg overflow-hidden ${
-                      selectedImage === index ? "ring-2 ring-green-600" : ""
+            <Image
+              src={item.images[selectedImage] || "/placeholder.svg"}
+              alt={item.title}
+              width={500}
+              height={500}
+              className="w-full h-96 object-cover rounded-lg"
+            />
+            <div className="grid grid-cols-4 gap-2">
+              {item.images.map((img, idx) => (
+                <Image
+                  key={idx}
+                  src={img}
+                  alt={`img-${idx}`}
+                  width={80}
+                  height={80}
+                  className={`cursor-pointer rounded ${selectedImage === idx ? "ring-2 ring-green-600" : ""
                     }`}
-                  >
-                    <Image
-                      src={image || "/placeholder.svg"}
-                      alt={`${item.title} ${index + 1}`}
-                      width={80}
-                      height={80}
-                      className="w-full h-20 object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+                  onClick={() => setSelectedImage(idx)}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Item Details */}
           <div className="space-y-6">
             <div>
               <div className="flex justify-between items-start mb-4">
                 <h1 className="text-3xl font-bold text-gray-900">{item.title}</h1>
-                <Badge className="bg-green-600 text-lg px-3 py-1">{item.points} points</Badge>
+                <Badge className="bg-green-600 text-lg px-3 py-1">{item.points} pts</Badge>
               </div>
-
-              <p className="text-gray-600 text-lg mb-6">{item.description}</p>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Category</p>
-                  <p className="text-gray-900">{item.category}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Type</p>
-                  <p className="text-gray-900">{item.type}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Size</p>
-                  <p className="text-gray-900">{item.size}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Condition</p>
-                  <Badge variant="outline">{item.condition}</Badge>
-                </div>
+              <p className="text-gray-600 text-lg mb-4">{item.description}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div><p className="text-sm text-gray-500">Category</p><p>{item.category}</p></div>
+                <div><p className="text-sm text-gray-500">Type</p><p>{item.type}</p></div>
+                <div><p className="text-sm text-gray-500">Size</p><p>{item.size}</p></div>
+                <div><p className="text-sm text-gray-500">Condition</p><Badge variant="outline">{item.condition}</Badge></div>
               </div>
-
               {item.tags.length > 0 && (
-                <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-500 mb-2">Tags</p>
-                  <div className="flex flex-wrap gap-2">
-                    {item.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary">
-                        {tag}
-                      </Badge>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-1">Tags</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {item.tags.map((tag, i) => (
+                      <Badge key={i} variant="secondary">{tag}</Badge>
                     ))}
                   </div>
                 </div>
@@ -318,28 +299,22 @@ export default function ItemDetailPage() {
 
             <Separator />
 
-            {/* Owner Info */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex justify-between items-center">
+              <div className="flex gap-3 items-center">
                 <Avatar>
                   <AvatarImage src={item.owner.avatar || "/placeholder.svg"} />
                   <AvatarFallback>{item.owner.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
                   <p className="font-medium">{item.owner.name}</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      <span>{item.owner.rating.toFixed(1)}</span>
-                    </div>
-                    <span>•</span>
-                    <span>{item.owner.totalSwaps} swaps</span>
-                  </div>
+                  <p className="text-sm text-gray-500 flex gap-2 items-center">
+                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                    {item.owner.rating.toFixed(1)} • {item.owner.totalSwaps} swaps
+                  </p>
                 </div>
               </div>
-
               {item.owner.location && (
-                <div className="flex items-center gap-1 text-sm text-gray-500">
+                <div className="text-sm text-gray-500 flex items-center gap-1">
                   <MapPin className="h-4 w-4" />
                   {item.owner.location.city}, {item.owner.location.state}
                 </div>
@@ -348,127 +323,89 @@ export default function ItemDetailPage() {
 
             <Separator />
 
-            {/* Item Stats */}
-            <div className="flex items-center gap-6 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                <span>{item.views} views</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Heart className="h-4 w-4" />
-                <span>{item.likes.length} likes</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>Listed {new Date(item.createdAt).toLocaleDateString()}</span>
-              </div>
+            <div className="flex gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-1"><Eye className="h-4 w-4" />{item.views} views</div>
+              <div className="flex items-center gap-1"><Heart className="h-4 w-4" />{item.likes.length} likes</div>
+              <div className="flex items-center gap-1"><Calendar className="h-4 w-4" />{new Date(item.createdAt).toLocaleDateString()}</div>
             </div>
 
-            {/* Swap Actions */}
-            <div className="space-y-4">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button size="lg" className="w-full bg-green-600 hover:bg-green-700">
-                    <RefreshCw className="h-5 w-5 mr-2" />
-                    Request Swap
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Request Swap</DialogTitle>
-                    <DialogDescription>Choose how you'd like to swap for "{item.title}"</DialogDescription>
-                  </DialogHeader>
+            {/* Swap Dialog */}
+            {item.status === "swapped" ? (
+              <Button size="lg" className="w-full bg-gray-400 text-black cursor-not-allowed" disabled>
+                <Recycle className="h-5 w-5 mr-2" />Item Swapped
+              </Button>) :
+              (
+                <Dialog>
+                  <DialogTrigger asChild>
 
-                  <div className="space-y-4">
-                    <div>
-                      <Label>Swap Type</Label>
-                      <Select value={swapType} onValueChange={(value: "direct" | "points") => setSwapType(value)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="direct">Direct Swap (Item for Item)</SelectItem>
-                          <SelectItem value="points">Points Only</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Button size="lg" className="w-full bg-green-600 hover:bg-green-700">
+                      <RefreshCw className="h-5 w-5 mr-2" />Request Swap
+                    </Button>
 
-                    {swapType === "direct" && (
+
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Request Swap</DialogTitle>
+                      <DialogDescription>Choose how you want to swap for "{item.title}"</DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
                       <div>
-                        <Label>Your Item to Offer</Label>
-                        <Select value={selectedUserItem} onValueChange={setSelectedUserItem}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select an item to offer" />
-                          </SelectTrigger>
+                        <Label>Swap Type</Label>
+                        <Select value={swapType} onValueChange={(val: "direct" | "points") => setSwapType(val)}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            {userItems.map((userItem) => (
-                              <SelectItem key={userItem._id} value={userItem._id}>
-                                {userItem.title} ({userItem.points} pts)
-                              </SelectItem>
-                            ))}
+                            <SelectItem value="direct">Direct Swap</SelectItem>
+                            <SelectItem value="points">Points Swap</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                    )}
 
-                    <div>
-                      <Label>Message (Optional)</Label>
-                      <Textarea
-                        placeholder="Add a personal message..."
-                        value={swapMessage}
-                        onChange={(e) => setSwapMessage(e.target.value)}
-                      />
+                      {swapType === "direct" && (
+                        <div>
+                          <Label>Your Item to Offer</Label>
+                          <Select value={selectedUserItem} onValueChange={setSelectedUserItem}>
+                            <SelectTrigger><SelectValue placeholder="Select item" /></SelectTrigger>
+                            <SelectContent>
+                              {userItems.map((userItem) => (
+                                <SelectItem key={userItem._id} value={userItem._id}>
+                                  {userItem.title} ({userItem.points} pts)
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+
+                      <div>
+                        <Label>Message (optional)</Label>
+                        <Textarea value={swapMessage} onChange={(e) => setSwapMessage(e.target.value)} />
+                      </div>
+
+                      {pointsDifference > 0 && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800">
+                          <Coins className="h-4 w-4 inline mr-1" /> Additional cost: {pointsDifference} points
+                        </div>
+                      )}
                     </div>
 
-                    {pointsDifference > 0 && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <div className="flex items-center gap-2 text-yellow-800">
-                          <Coins className="h-4 w-4" />
-                          <span className="font-medium">Additional cost: {pointsDifference} points</span>
-                        </div>
-                        <p className="text-sm text-yellow-700 mt-1">
-                          {swapType === "points"
-                            ? "You'll spend your points to get this item"
-                            : "Points difference between items"}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <DialogFooter>
-                    <Button
-                      onClick={handleSwapRequest}
-                      disabled={
-                        (swapType === "direct" && !selectedUserItem) ||
-                        (swapType === "points" && currentUserPoints < pointsDifference)
-                      }
-                      className="w-full"
-                    >
-                      Send Swap Request
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              {!canAffordSwap && swapType === "points" && (
-                <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
-                  <p className="text-sm text-orange-700 mb-2">
-                    You need {pointsDifference - currentUserPoints} more points for this swap
-                  </p>
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href="/browse">
-                      <Coins className="h-4 w-4 mr-2" />
-                      Browse Items to Earn Points
-                    </Link>
-                  </Button>
-                </div>
+                    <DialogFooter>
+                      <Button
+                        onClick={handleSwapRequest}
+                        disabled={
+                          (swapType === "direct" && !selectedUserItem) ||
+                          (swapType === "points" && currentUserPoints < pointsDifference)
+                        }
+                        className="w-full"
+                      >
+                        Send Swap Request
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               )}
-
-              <Button variant="outline" size="lg" className="w-full bg-transparent">
-                <Heart className="h-5 w-5 mr-2" />
-                Add to Wishlist
-              </Button>
-            </div>
+              
           </div>
         </div>
       </div>

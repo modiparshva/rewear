@@ -12,29 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { Heart, Search, Filter, Grid, List, MapPin, Star, Recycle } from "lucide-react"
 import Image from "next/image"
+import { Item } from "@/lib/interfaces"
 
-interface Item {
-  _id: string
-  title: string
-  description: string
-  category: string
-  condition: string
-  points: number
-  images: string[]
-  owner: {
-    name: string
-    avatar?: string
-    rating: number
-    totalSwaps: number
-    location?: {
-      city: string
-      state: string
-    }
-  }
-  views: number
-  likes: string[]
-  createdAt: string
-}
 
 const categories = [
   "All",
@@ -227,7 +206,7 @@ export default function BrowsePage() {
     <div className="min-h-screen bg-gray-50">
       
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
+        
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Items</h1>
           <p className="text-gray-600">Discover amazing clothes from our community</p>
