@@ -12,11 +12,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
 
+    console.log("Fetching points history for user:", userId)
+
     const { searchParams } = new URL(request.url)
     const limit = Number.parseInt(searchParams.get("limit") || "20")
     const offset = Number.parseInt(searchParams.get("offset") || "0")
 
+    console.log("Limit:", limit, "Offset:", offset)
     const history = await SwapService.getPointsHistory(userId, limit, offset)
+
+    // console.log("Fetched points history:", history)
 
     return NextResponse.json({ history })
   } catch (error: any) {

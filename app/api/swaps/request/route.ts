@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import dbConnect from "@/lib/db"
 import { SwapService } from "@/lib/services/swapService"
-import { cookies } from "next/headers"
+import Swap from "@/lib/models/Swap"
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -51,3 +52,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message || "Failed to send swap request" }, { status: 500 })
   }
 }
+
+
+
+export async function GET(req: NextRequest) {
+  try {
+    await dbConnect()
+
+    const userId = req.cookies.get("user_session_id")?.value
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+
+    console.log("Fetching swap requests for user:", userId)
+
+    // Fetch all swap requests where current user is the owner of the requested item
+    const swaps = await Swap.find()
+      // .populate("requestedItem")
+      // .populate("offeredItem")
+      // .populate("requester", "name avatar")
+      // .sort({ createdAt: -1 })
+      // .lean()
+
+    // console.log("Fetched swap requests:", swaps)
+
+    return NextResponse.json({ requests: swaps })
+  } catch (error: any) {
+    console.error("GET /api/swaps/requests error:", error)
+    return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 })
+  }
+}
+
