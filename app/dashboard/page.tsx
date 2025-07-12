@@ -113,6 +113,8 @@ interface PointsTransaction {
   }
 }
 
+// Exporting Dashboard Page
+
 export default function DashboardPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [userItems, setUserItems] = useState<UserItem[]>([])
